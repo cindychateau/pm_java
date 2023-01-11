@@ -1,5 +1,7 @@
 package com.codingdojo.cynthia.servicios;
 
+import java.util.List;
+
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -79,6 +81,41 @@ public class AppService {
 	/*Guardar en BD los cambios del usuario*/
 	public User save_user(User user) {
 		return repositorio_usuarios.save(user);
+	}
+	
+	/*Me regresa la lista de objetos de proyecto a los que NO pertenezco */
+	public List<Project> find_other_projects(User usuario_en_sesion) {
+		return repositorio_proyectos.findByUsersJoinedNotContains(usuario_en_sesion);
+	}
+	
+	/*Me regrese la lista de objetos de proyecto a los que SI pertenezco*/
+	public List<Project> find_my_projects(User usuario_en_sesion) {
+		return repositorio_proyectos.findAllByUsersJoined(usuario_en_sesion);
+	}
+	
+	/*Me regrese un proyecto en base a su ID*/
+	public Project find_project(Long id) {
+		return repositorio_proyectos.findById(id).orElse(null);
+	}
+	
+	//user_id = 1
+	//project_id = 2
+	//myUser = Elena De Troja (OBJETO USER)
+	//myProject = "Eventos" (OBJETO PROJECT)
+	public void save_project_user(Long user_id, Long project_id) {
+		User myUser = find_user(user_id); //Obteniendo el objeto de usuario
+		Project myProject = find_project(project_id); //Obteniendo el objeto de proyecto
+		
+		myUser.getProjects_joined().add(myProject);
+		repositorio_usuarios.save(myUser);
+	}
+	
+	public void remove_project_user(Long user_id, Long project_id) {
+		User myUser = find_user(user_id); //Obteniendo el objeto de usuario
+		Project myProject = find_project(project_id); //Obteniendo el objeto de proyecto
+		
+		myUser.getProjects_joined().remove(myProject);
+		repositorio_usuarios.save(myUser);
 	}
 	
 }

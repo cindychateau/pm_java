@@ -1,10 +1,13 @@
 package com.codingdojo.cynthia.controladores;
 
+import java.util.List;
+
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.codingdojo.cynthia.modelos.Project;
 import com.codingdojo.cynthia.modelos.User;
 import com.codingdojo.cynthia.servicios.AppService;
 
@@ -42,7 +46,8 @@ public class ControladorUsuarios {
 	}
 	
 	@GetMapping("/dashboard")
-	public String dashboard(HttpSession session) {
+	public String dashboard(HttpSession session,
+							Model model) {
 		/*REVISAMOS LA SESION*/
 		User usuario_en_sesion = (User)session.getAttribute("user_session");
 		
@@ -51,7 +56,15 @@ public class ControladorUsuarios {
 		}
 		/*REVISAMOS LA SESION*/
 		
-		//PENDIENTE: Lista de proyectos
+		//Lista de proyectos a los que pertenezco
+		List<Project> mis_proyectos = servicio.find_my_projects(usuario_en_sesion);
+		
+		//Lista de proyectos a los que NO pertenezco
+		List<Project> resto_proyectos = servicio.find_other_projects(usuario_en_sesion);
+		
+		model.addAttribute("mis_proyectos", mis_proyectos);
+		model.addAttribute("resto_proyectos", resto_proyectos);
+		
 		
 		return "dashboard.jsp";
 	}
